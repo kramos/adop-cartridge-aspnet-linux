@@ -4,25 +4,25 @@ def projectFolderName = "${PROJECT_NAME}"
 
 // Variables
 // **The git repo variables will be changed to the users' git repositories manually in the Jenkins jobs**
-def skeletonAppgitRepo = "YOUR_APPLICATION_REPO"
-def skeletonAppGitUrl = "ssh://jenkins@gerrit:29418/${PROJECT_NAME}/" + skeletonAppgitRepo
-def regressionTestGitRepo = "YOUR_REGRESSION_TEST_REPO"
-def regressionTestGitUrl = "ssh://jenkins@gerrit:29418/${PROJECT_NAME}/" + regressionTestGitRepo
+def partsUnlimitedAppgitRepo = "PartsUnlimited"
+def partsUnlimitedAppGitUrl = "ssh://jenkins@gerrit:29418/${PROJECT_NAME}/" + partsUnlimitedAppgitRepo
+//def regressionTestGitRepo = "YOUR_REGRESSION_TEST_REPO"
+//def regressionTestGitUrl = "ssh://jenkins@gerrit:29418/${PROJECT_NAME}/" + regressionTestGitRepo
 
 // Jobs
-def buildAppJob = freeStyleJob(projectFolderName + "/Skeleton_Application_Build")
-def unitTestJob = freeStyleJob(projectFolderName + "/Skeleton_Application_Unit_Tests")
-def codeAnalysisJob = freeStyleJob(projectFolderName + "/Skeleton_Application_Code_Analysis")
-def deployJob = freeStyleJob(projectFolderName + "/Skeleton_Application_Deploy")
-def regressionTestJob = freeStyleJob(projectFolderName + "/Skeleton_Application_Regression_Tests")
+def buildAppJob = freeStyleJob(projectFolderName + "/Parts_Unlimited_Build")
+def unitTestJob = freeStyleJob(projectFolderName + "/Parts_Unlimited_Unit_Tests")
+def codeAnalysisJob = freeStyleJob(projectFolderName + "/Parts_Unlimited_Code_Analysis")
+def deployJob = freeStyleJob(projectFolderName + "/Parts_Unlimited_Deploy")
+def regressionTestJob = freeStyleJob(projectFolderName + "/Parts_Unlimited_Regression_Tests")
 
 // Views
-def pipelineView = buildPipelineView(projectFolderName + "/Skeleton_Application")
+def pipelineView = buildPipelineView(projectFolderName + "/partsUnlimited_Application")
 
 pipelineView.with{
-    title('Skeleton Application Pipeline')
+    title('partsUnlimited Application Pipeline')
     displayedBuilds(5)
-    selectedJob(projectFolderName + "/Skeleton_Application_Build")
+    selectedJob(projectFolderName + "/Parts_Unlimited_Build")
     showPipelineParameters()
     showPipelineDefinitionHeader()
     refreshFrequency(5)
@@ -34,11 +34,11 @@ pipelineView.with{
 // New jobs can be introduced into the pipeline as required
 
 buildAppJob.with{
-	description("Skeleton application build job.")
+	description("partsUnlimited application build job.")
 	scm{
 		git{
 			remote{
-				url(skeletonAppGitUrl)
+				url(partsUnlimitedAppGitUrl)
 				credentials("adop-jenkins-master")
 			}
 			branch("*/master")
@@ -64,7 +64,7 @@ buildAppJob.with{
 			gerritxml / 'gerritProjects' {
 			  'com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.GerritProject' {
 				compareType("PLAIN")
-				pattern(projectFolderName + "/" + skeletonAppgitRepo)
+				pattern(projectFolderName + "/" + partsUnlimitedAppgitRepo)
 				'branches' {
 				  'com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.Branch' {
 					compareType("PLAIN")
@@ -82,7 +82,7 @@ buildAppJob.with{
 	}
 	publishers{
 		downstreamParameterized{
-		  trigger(projectFolderName + "/Skeleton_Application_Unit_Tests"){
+		  trigger(projectFolderName + "/Parts_Unlimited_Unit_Tests"){
 			condition("UNSTABLE_OR_BETTER")
 			parameters{
 			  predefinedProp("B",'${BUILD_NUMBER}')
@@ -94,10 +94,10 @@ buildAppJob.with{
 }
 
 unitTestJob.with{
-  description("This job runs unit tests on our skeleton application.")
+  description("This job runs unit tests on our partsUnlimited application.")
   parameters{
     stringParam("B",'',"Parent build number")
-    stringParam("PARENT_BUILD","Skeleton_Application_Build","Parent build name")
+    stringParam("PARENT_BUILD","Parts_Unlimited_Build","Parent build name")
   }
   wrappers {
     preBuildCleanup()
@@ -117,7 +117,7 @@ unitTestJob.with{
   }
   publishers{
     downstreamParameterized{
-      trigger(projectFolderName + "/Skeleton_Application_Code_Analysis"){
+      trigger(projectFolderName + "/Parts_Unlimited_Code_Analysis"){
         condition("UNSTABLE_OR_BETTER")
         parameters{
           predefinedProp("B",'${B}')
@@ -129,10 +129,10 @@ unitTestJob.with{
 }
 
 codeAnalysisJob.with{
-  description("This job runs code quality analysis for our skeleton application using SonarQube.")
+  description("This job runs code quality analysis for our partsUnlimited application using SonarQube.")
   parameters{
     stringParam("B",'',"Parent build number")
-    stringParam("PARENT_BUILD","Skeleton_Application_Build","Parent build name")
+    stringParam("PARENT_BUILD","Parts_Unlimited_Build","Parent build name")
   }
   environmentVariables {
       env('WORKSPACE_NAME',workspaceFolderName)
@@ -150,7 +150,7 @@ codeAnalysisJob.with{
   }
   publishers{
     downstreamParameterized{
-      trigger(projectFolderName + "/Skeleton_Application_Deploy"){
+      trigger(projectFolderName + "/Parts_Unlimited_Deploy"){
         condition("UNSTABLE_OR_BETTER")
         parameters{
           predefinedProp("B",'${B}')
@@ -162,10 +162,10 @@ codeAnalysisJob.with{
 }
 
 deployJob.with{
-  description("This job deploys the skeleton application to the CI environment")
+  description("This job deploys the partsUnlimited application to the CI environment")
   parameters{
     stringParam("B",'',"Parent build number")
-    stringParam("PARENT_BUILD","Skeleton_Application_Build","Parent build name")
+    stringParam("PARENT_BUILD","Parts_Unlimited_Build","Parent build name")
     stringParam("ENVIRONMENT_NAME","CI","Name of the environment.")
   }
   wrappers {
@@ -184,7 +184,7 @@ deployJob.with{
   }
   publishers{
     downstreamParameterized{
-      trigger(projectFolderName + "/Skeleton_Application_Regression_Tests"){
+      trigger(projectFolderName + "/Parts_Unlimited_Regression_Tests"){
         condition("UNSTABLE_OR_BETTER")
         parameters{
           predefinedProp("B",'${B}')
@@ -197,10 +197,10 @@ deployJob.with{
 }
 
 regressionTestJob.with{
-  description("This job runs regression tests on the deployed skeleton application")
+  description("This job runs regression tests on the deployed partsUnlimited application")
   parameters{
     stringParam("B",'',"Parent build number")
-    stringParam("PARENT_BUILD","Skeleton_Application_Build","Parent build name")
+    stringParam("PARENT_BUILD","Parts_Unlimited_Build","Parent build name")
     stringParam("ENVIRONMENT_NAME","CI","Name of the environment.")
   }
   scm{
