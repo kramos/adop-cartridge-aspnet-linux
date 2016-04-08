@@ -132,6 +132,7 @@ unitTestJob.with{
     copyArtifacts('Parts_Unlimited_Build') {
         buildSelector {
           buildNumber('${B}')
+	}
     }
     shell('''
             |set -x
@@ -234,6 +235,7 @@ deployJob.with{
     copyArtifacts('Parts_Unlimited_Build') {
         buildSelector {
           buildNumber('${B}')
+	}
     }
     shell('''
             |
