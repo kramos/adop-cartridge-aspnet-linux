@@ -203,15 +203,7 @@ regressionTestJob.with{
     stringParam("PARENT_BUILD","Parts_Unlimited_Build","Parent build name")
     stringParam("ENVIRONMENT_NAME","CI","Name of the environment.")
   }
-  scm{
-    git{
-      remote{
-        url(regressionTestGitUrl)
-        credentials("adop-jenkins-master")
-      }
-      branch("*/master")
-    }
-  }
+
   wrappers {
     preBuildCleanup()
     injectPasswords()
