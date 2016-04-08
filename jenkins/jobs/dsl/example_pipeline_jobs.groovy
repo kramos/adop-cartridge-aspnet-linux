@@ -130,7 +130,20 @@ unitTestJob.with{
   steps {
   }
   steps {
-    shell('''## YOUR UNIT TESTING STEPS GO HERE'''.stripMargin())
+    shell('''
+		|set -x
+		|
+		|echo "Mount the source code into a container that will run the unit tests"
+		|
+		|docker run --rm -v jenkins_slave_home:/jenkins_slave_home/ \
+		|            		ifourmanov/adop-asp-build \
+		|			bash -c "source /root/.dnx/dnvm/dnvm.sh && \
+		|     			cd /jenkins_slave_home/$JOB_NAME/test/PartsUnlimited.UnitTests/ && \
+		|     			dnu restore && \
+		|     			dnx test"
+		|
+		|set +x
+		|'''.stripMargin())
   }
   publishers{
     downstreamParameterized{
@@ -172,12 +185,12 @@ codeAnalysisJob.with{
   configure { myProject ->
     myProject / builders << 'hudson.plugins.sonar.SonarRunnerBuilder'(plugin:"sonar@2.2.1"){
       properties('''sonar.projectKey=org.java.reference-application
-      sonar.projectName=Reference application
-      sonar.projectVersion=1.0.0
-      sonar.sources=src
-      sonar.language=java
-      sonar.sourceEncoding=UTF-8
-      sonar.scm.enabled=false''')
+sonar.projectName=Reference application
+sonar.projectVersion=1.0.0
+sonar.sources=src
+sonar.language=java
+sonar.sourceEncoding=UTF-8
+sonar.scm.enabled=false''')
       javaOpts()
       jdk('(Inherit From Job)')
       task()
@@ -215,7 +228,26 @@ deployJob.with{
   }
   label("docker")
   steps {
-    shell('''## YOUR DEPLOY STEPS GO HERE'''.stripMargin())
+    shell('''
+		|
+		|echo "Deploying"
+		|cd ${WORKSPACE}/src/PartsUnlimitedWebsite/bin/
+		|
+		|cat <<EOF > Dockerfile
+		|FROM microsoft/aspnet
+		|COPY output /app
+		|WORKDIR /app
+		|EXPOSE 5001
+		|ENTRYPOINT ["approot/Kestrel"]
+		|EOF
+		|
+		|
+		|docker kill asplinux || true
+		|docker rm asplinux || true
+		|docker build -t refapp:${BUILD_NUMBER} .
+		|docker run -d -p 5001:5001 --name asplinux refapp:${BUILD_NUMBER}
+		|
+		|'''.stripMargin())
   }
   publishers{
     downstreamParameterized{
