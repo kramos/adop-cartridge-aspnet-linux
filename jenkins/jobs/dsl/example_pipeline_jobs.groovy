@@ -78,7 +78,24 @@ buildAppJob.with{
 		}
 	}
 	steps {
-		shell('''## YOUR BUILD STEPS GO HERE'''.stripMargin())
+		shell('''
+		|
+		|set -x
+		|
+		|echo "Mount the source code into a container that will build the dotnet binary"
+		|
+		|docker run -t --rm -v jenkins_slave_home:/build \
+		|            ifourmanov/adop-asp-build \
+		|            bash -c "source /root/.dnx/dnvm/dnvm.sh && \
+		|    		cd /build/${JOB_NAME}/src/PartsUnlimited.Models/ && \
+		|    		dnu restore && \
+		|    		cd /build/${JOB_NAME}/src/PartsUnlimitedWebsite && \
+		|    		dnu restore && \
+		|    		dnu publish && \
+		|    		echo done"
+		|
+		|set +x
+		|'''.stripMargin())
 	}
 	publishers{
 		downstreamParameterized{
@@ -146,7 +163,25 @@ codeAnalysisJob.with{
   }
   label("docker")
   steps {
-    shell('''## YOUR CODE ANALYSIS STEPS GO HERE'''.stripMargin())
+    copyArtifacts('Reference_Application_Build') {
+        buildSelector {
+          buildNumber('${B}')
+      }
+    }
+  }
+  configure { myProject ->
+    myProject / builders << 'hudson.plugins.sonar.SonarRunnerBuilder'(plugin:"sonar@2.2.1"){
+      properties('''sonar.projectKey=org.java.reference-application
+      sonar.projectName=Reference application
+      sonar.projectVersion=1.0.0
+      sonar.sources=src
+      sonar.language=java
+      sonar.sourceEncoding=UTF-8
+      sonar.scm.enabled=false''')
+      javaOpts()
+      jdk('(Inherit From Job)')
+      task()
+    }
   }
   publishers{
     downstreamParameterized{
