@@ -127,9 +127,12 @@ unitTestJob.with{
       env('PROJECT_NAME',projectFolderName)
   }
   label("docker")
+  
   steps {
-  }
-  steps {
+    copyArtifacts('Parts_Unlimited_Build') {
+        buildSelector {
+          buildNumber('${B}')
+    }
     shell('''
             |set -x
             |
@@ -137,7 +140,7 @@ unitTestJob.with{
             |
             |docker run --rm -v jenkins_slave_home:/jenkins_slave_home/ \\
             |            		ifourmanov/adop-asp-build \\
-            |			bash -c "source /root/.dnx/dnvm/dnvm.sh && \\
+	    |				bash -c "source /root/.dnx/dnvm/dnvm.sh && \\
             |     			cd /jenkins_slave_home/$JOB_NAME/test/PartsUnlimited.UnitTests/ && \\
             |     			dnu restore && \\
             |     			dnx test"
@@ -176,7 +179,7 @@ codeAnalysisJob.with{
   }
   label("docker")
   steps {
-    copyArtifacts('Reference_Application_Build') {
+    copyArtifacts('Parts_Unlimited_Build') {
         buildSelector {
           buildNumber('${B}')
       }
@@ -228,6 +231,10 @@ deployJob.with{
   }
   label("docker")
   steps {
+    copyArtifacts('Parts_Unlimited_Build') {
+        buildSelector {
+          buildNumber('${B}')
+    }
     shell('''
             |
             |echo "Deploying"
