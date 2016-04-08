@@ -86,7 +86,7 @@ buildAppJob.with{
             |
             |docker run -t --rm -v jenkins_slave_home:/build \\
             |            ifourmanov/adop-asp-build \\
-            |            bash -c "source /root/.dnx/dnvm/dnvm.sh && \
+            |            bash -c "source /root/.dnx/dnvm/dnvm.sh && \\
             |    		cd /build/${JOB_NAME}/src/PartsUnlimited.Models/ && \\
             |    		dnu restore && \\
             |    		cd /build/${JOB_NAME}/src/PartsUnlimitedWebsite && \\
@@ -135,11 +135,11 @@ unitTestJob.with{
             |
             |echo "Mount the source code into a container that will run the unit tests"
             |
-            |docker run --rm -v jenkins_slave_home:/jenkins_slave_home/ \
-            |            		ifourmanov/adop-asp-build \
-            |			bash -c "source /root/.dnx/dnvm/dnvm.sh && \
-            |     			cd /jenkins_slave_home/$JOB_NAME/test/PartsUnlimited.UnitTests/ && \
-            |     			dnu restore && \
+            |docker run --rm -v jenkins_slave_home:/jenkins_slave_home/ \\
+            |            		ifourmanov/adop-asp-build \\
+            |			bash -c "source /root/.dnx/dnvm/dnvm.sh && \\
+            |     			cd /jenkins_slave_home/$JOB_NAME/test/PartsUnlimited.UnitTests/ && \\
+            |     			dnu restore && \\
             |     			dnx test"
             |
             |set +x
