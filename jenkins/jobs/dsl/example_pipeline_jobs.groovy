@@ -79,23 +79,23 @@ buildAppJob.with{
 	}
 	steps {
 		shell('''
-		|
-		|set -x
-		|
-		|echo "Mount the source code into a container that will build the dotnet binary"
-		|
-		|docker run -t --rm -v jenkins_slave_home:/build \
-		|            ifourmanov/adop-asp-build \
-		|            bash -c "source /root/.dnx/dnvm/dnvm.sh && \
-		|    		cd /build/${JOB_NAME}/src/PartsUnlimited.Models/ && \
-		|    		dnu restore && \
-		|    		cd /build/${JOB_NAME}/src/PartsUnlimitedWebsite && \
-		|    		dnu restore && \
-		|    		dnu publish && \
-		|    		echo done"
-		|
-		|set +x
-		|'''.stripMargin())
+            |
+            |set -x
+            |
+            |echo "Mount the source code into a container that will build the dotnet binary"
+            |
+            |docker run -t --rm -v jenkins_slave_home:/build \\
+            |            ifourmanov/adop-asp-build \\
+            |            bash -c "source /root/.dnx/dnvm/dnvm.sh && \
+            |    		cd /build/${JOB_NAME}/src/PartsUnlimited.Models/ && \\
+            |    		dnu restore && \\
+            |    		cd /build/${JOB_NAME}/src/PartsUnlimitedWebsite && \\
+            |    		dnu restore && \\
+            |    		dnu publish && \\
+            |    		echo done"
+            |
+            |set +x
+            |'''.stripMargin())
 	}
 	publishers{
 		downstreamParameterized{
@@ -131,19 +131,19 @@ unitTestJob.with{
   }
   steps {
     shell('''
-		|set -x
-		|
-		|echo "Mount the source code into a container that will run the unit tests"
-		|
-		|docker run --rm -v jenkins_slave_home:/jenkins_slave_home/ \
-		|            		ifourmanov/adop-asp-build \
-		|			bash -c "source /root/.dnx/dnvm/dnvm.sh && \
-		|     			cd /jenkins_slave_home/$JOB_NAME/test/PartsUnlimited.UnitTests/ && \
-		|     			dnu restore && \
-		|     			dnx test"
-		|
-		|set +x
-		|'''.stripMargin())
+            |set -x
+            |
+            |echo "Mount the source code into a container that will run the unit tests"
+            |
+            |docker run --rm -v jenkins_slave_home:/jenkins_slave_home/ \
+            |            		ifourmanov/adop-asp-build \
+            |			bash -c "source /root/.dnx/dnvm/dnvm.sh && \
+            |     			cd /jenkins_slave_home/$JOB_NAME/test/PartsUnlimited.UnitTests/ && \
+            |     			dnu restore && \
+            |     			dnx test"
+            |
+            |set +x
+            |'''.stripMargin())
   }
   publishers{
     downstreamParameterized{
@@ -229,25 +229,25 @@ deployJob.with{
   label("docker")
   steps {
     shell('''
-		|
-		|echo "Deploying"
-		|cd ${WORKSPACE}/src/PartsUnlimitedWebsite/bin/
-		|
-		|cat <<EOF > Dockerfile
-		|FROM microsoft/aspnet
-		|COPY output /app
-		|WORKDIR /app
-		|EXPOSE 5001
-		|ENTRYPOINT ["approot/Kestrel"]
-		|EOF
-		|
-		|
-		|docker kill asplinux || true
-		|docker rm asplinux || true
-		|docker build -t refapp:${BUILD_NUMBER} .
-		|docker run -d -p 5001:5001 --name asplinux refapp:${BUILD_NUMBER}
-		|
-		|'''.stripMargin())
+            |
+            |echo "Deploying"
+            |cd ${WORKSPACE}/src/PartsUnlimitedWebsite/bin/
+            |
+            |cat <<EOF > Dockerfile
+            |FROM microsoft/aspnet
+            |COPY output /app
+            |WORKDIR /app
+            |EXPOSE 5001
+            |ENTRYPOINT ["approot/Kestrel"]
+            |EOF
+            |
+            |
+            |docker kill asplinux || true
+            |docker rm asplinux || true
+            |docker build -t refapp:${BUILD_NUMBER} .
+            |docker run -d -p 5001:5001 --name asplinux refapp:${BUILD_NUMBER}
+            |
+            |'''.stripMargin())
   }
   publishers{
     downstreamParameterized{
