@@ -86,7 +86,7 @@ buildAppJob.with{
             |#Hack of doom: because running normally never returns, run as daemon and tail logs until the end
             |docker run  -d --name adop-asp-build \\
             |		 -v jenkins_slave_home:/build \\
-            |		 -v /var/run/docker.sock:/var/run/docker.sock \
+            |		 -v /var/run/docker.sock:/var/run/docker.sock \\
             |            ifourmanov/adop-asp-build \\
             |            bash -c "source /root/.dnx/dnvm/dnvm.sh && \\
             |    		  cd /build/${JOB_NAME}/src/PartsUnlimited.Models/ && \\
