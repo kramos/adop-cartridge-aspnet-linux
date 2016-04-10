@@ -191,11 +191,11 @@ codeAnalysisJob.with{
   }
   configure { myProject ->
     myProject / builders << 'hudson.plugins.sonar.SonarRunnerBuilder'(plugin:"sonar@2.2.1"){
-      properties('''sonar.projectKey=org.java.reference-application
+      properties('''sonar.projectKey=org.cs.reference-application
 sonar.projectName=Reference application
 sonar.projectVersion=1.0.0
 sonar.sources=src
-sonar.language=java
+sonar.language=cs
 sonar.sourceEncoding=UTF-8
 sonar.scm.enabled=false''')
       javaOpts()
