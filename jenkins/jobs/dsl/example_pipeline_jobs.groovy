@@ -83,21 +83,24 @@ buildAppJob.with{
             |set -x
             |
             |echo "Mount the source code into a container that will build the dotnet binary"
-            |
-            |docker run -t --rm -v jenkins_slave_home:/build \\
+            |#Hack of doom: because running normally never returns, run as daemon and tail logs until the end
+            |docker run  -d --name adop-asp-build \\
+            |		 -v jenkins_slave_home:/build \\
+            |		 -v /var/run/docker.sock:/var/run/docker.sock \
             |            ifourmanov/adop-asp-build \\
             |            bash -c "source /root/.dnx/dnvm/dnvm.sh && \\
-            |    		cd /build/${JOB_NAME}/src/PartsUnlimited.Models/ && \\
-            |    		dnu restore && \\
-            |    		cd /build/${JOB_NAME}/src/PartsUnlimitedWebsite && \\
-            |    		dnu restore && \\
-            |    		dnu publish && \\
-            |    		echo done"
-            |
+            |    		  cd /build/${JOB_NAME}/src/PartsUnlimited.Models/ && \\
+            |    		  dnu restore && \\
+            |    		  cd /build/${JOB_NAME}/src/PartsUnlimitedWebsite && \\
+            |    		  dnu restore && \\
+            |    		  dnu publish"
+            |docker logs -f adop-asp-build
+            |docker rm adop-asp-build
             |set +x
             |'''.stripMargin())
 	}
 	publishers{
+		archiveArtifacts("**/*")
 		downstreamParameterized{
 		  trigger(projectFolderName + "/Parts_Unlimited_Unit_Tests"){
 			condition("UNSTABLE_OR_BETTER")
