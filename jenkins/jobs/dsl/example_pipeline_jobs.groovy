@@ -84,7 +84,8 @@ buildAppJob.with{
             |
             |echo "Mount the source code into a container that will build the dotnet binary"
             |#Hack of doom: because running normally never returns, run as daemon and tail logs until the end
-            |docker run  -d --name adop-asp-build \\
+            |CONTNAME=adop-asp-build-${RANDOM}
+            |docker run  -d --name $CONTNAME \\
             |		 -v jenkins_slave_home:/build \\
             |		 -v /var/run/docker.sock:/var/run/docker.sock \\
             |            ifourmanov/adop-asp-build \\
@@ -94,8 +95,8 @@ buildAppJob.with{
             |    		  cd /build/${JOB_NAME}/src/PartsUnlimitedWebsite && \\
             |    		  dnu restore && \\
             |    		  dnu publish"
-            |docker logs -f adop-asp-build
-            |docker rm adop-asp-build
+            |docker logs -f $CONTNAME
+            |docker rm $CONTNAME
             |set +x
             |'''.stripMargin())
 	}
