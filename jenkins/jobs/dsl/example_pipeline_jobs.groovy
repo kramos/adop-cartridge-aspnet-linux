@@ -189,6 +189,9 @@ codeAnalysisJob.with{
           buildNumber('${B}')
       }
     }
+    shell('''
+    |printf "\n\n\n\nWARNING!!!!!\n\n The SonarQube step won't currently run c# analysis on Linux so the below step has been set to look for Java i.e. it is useless!\n\n\n\n"
+    |'''.stripMargin())
   }
   configure { myProject ->
     myProject / builders << 'hudson.plugins.sonar.SonarRunnerBuilder'(plugin:"sonar@2.2.1"){
@@ -196,7 +199,7 @@ codeAnalysisJob.with{
 sonar.projectName=Reference application
 sonar.projectVersion=1.0.0
 sonar.sources=src
-sonar.language=cs
+sonar.language=java
 sonar.sourceEncoding=UTF-8
 sonar.scm.enabled=false''')
       javaOpts()
