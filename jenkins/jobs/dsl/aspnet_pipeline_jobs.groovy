@@ -194,21 +194,11 @@ codeAnalysisJob.with{
           |set +x
           |'''.stripMargin())
   }
-  configure { myProject ->
-    myProject / builders << 'hudson.plugins.sonar.SonarRunnerBuilder'(plugin:"sonar@2.2.1"){
-      properties('''sonar.projectKey=org.cs.reference-application
-      sonar.projectName=Reference application
-      sonar.projectVersion=1.0.0
-      sonar.sources=src
-      sonar.language=java
-      sonar.sourceEncoding=UTF-8
-      sonar.scm.enabled=false''')
-      javaOpts()
-      jdk('(Inherit From Job)')
-      task()
-    }
-  }
   publishers{
+    groovyPostBuild{
+      script("manager.buildUnstable()")
+      sandbox(true)
+    }
     downstreamParameterized{
       trigger(projectFolderName + "/Parts_Unlimited_Deploy"){
         condition("UNSTABLE_OR_BETTER")
