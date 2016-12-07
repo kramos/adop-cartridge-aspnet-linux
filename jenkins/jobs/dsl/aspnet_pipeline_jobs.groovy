@@ -298,7 +298,7 @@ performanceTestsJob.with {
                |set -x
                |sleep 45
                |CONTAINER_IP=$(docker inspect --format '{{ .NetworkSettings.Networks.'"$DOCKER_NETWORK_NAME"'.IPAddress }}' asplinux )
-               |sed -i "s/###TOKEN_VALID_URL###/http:\\/\\/10.0.0.101:8000/g" ${WORKSPACE}/src/test/scala/default/RecordedSimulation.scala
+               |sed -i "s/###TOKEN_VALID_URL###/http:\\/\\/localhost:8000/g" ${WORKSPACE}/src/test/scala/default/RecordedSimulation.scala
                |sed -i "s/###TOKEN_RESPONSE_TIME###/${MAX_RESPONSE_TIME}/g" ${WORKSPACE}/src/test/scala/default/RecordedSimulation.scala
                |set +x
                |'''.stripMargin())
@@ -312,17 +312,6 @@ performanceTestsJob.with {
     configure{ myProject ->
         myProject / publishers << 'io.gatling.jenkins.GatlingPublisher'(plugin: "gatling@1.1.1") {
             enabled("true")
-        }
-    }
-    publishers {
-        downstreamParameterized {
-            trigger(projectFolderName + "/Test_Automation") {
-                condition("SUCCESS")
-                parameters {
-                    predefinedProp("B", '${B}')
-                    predefinedProp("PARENT_BUILD", '${JOB_NAME}')
-                }
-            }
         }
     }
 }
