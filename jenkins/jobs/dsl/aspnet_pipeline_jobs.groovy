@@ -98,7 +98,7 @@ buildAndUnitTestJob.with{
           |set -x
           |echo "Mount the source code into a container that will run the build and unit tests"
           |CONTNAME=adop-asp-build-${RANDOM}
-          |docker run -d --name $CONTNAME \\
+          |docker run -t --name $CONTNAME \\
           |-v jenkins_slave_home:/jenkins_slave_home \\
           |subodhhatkar/adop-dotnet:1.0.1 \\
           |bash -c \\
@@ -109,7 +109,6 @@ buildAndUnitTestJob.with{
           |cd /jenkins_slave_home/${JOB_NAME}/test/PartsUnlimited.UnitTests && \\
           |dotnet restore && \\
           |dotnet test"
-          |docker logs -f $CONTNAME
           |docker rm $CONTNAME
           |set +x
           |'''.stripMargin())
