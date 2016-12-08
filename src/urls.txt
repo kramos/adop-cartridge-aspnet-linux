@@ -1,1 +1,2 @@
-https://github.com/jjcollinge/PartsUnlimited.git
+https://github.com/Microsoft/PartsUnlimited
+https://github.com/subodh-hatkar/dotnet-performance-tests
