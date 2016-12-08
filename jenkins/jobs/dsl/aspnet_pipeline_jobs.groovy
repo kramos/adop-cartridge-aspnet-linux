@@ -7,8 +7,7 @@ def projectFolderName = "${PROJECT_NAME}"
 def partsUnlimitedAppgitRepo = "PartsUnlimited"
 def performanceTestsgitRepo = "dotnet-performance-tests"
 def partsUnlimitedAppGitUrl = "ssh://jenkins@gerrit:29418/${PROJECT_NAME}/" + partsUnlimitedAppgitRepo
-//def gatelingReferenceAppGitUrl = "ssh://jenkins@gerrit:29418/${PROJECT_NAME}/" + performanceTestsgitRepo
-def gatelingReferenceAppGitUrl = "ssh://git@newsource.accenture.com/aad1216/dotnet-performance-tests.git"
+def gatelingReferenceAppGitUrl = "ssh://jenkins@gerrit:29418/${PROJECT_NAME}/" + performanceTestsgitRepo
 
 // Jobs
 def buildAndUnitTestJob = freeStyleJob(projectFolderName + "/Parts_Unlimited_Build_And_Unit_Tests")
@@ -288,7 +287,7 @@ performanceTestsJob.with {
         git {
             remote {
                 url(gatelingReferenceAppGitUrl)
-                credentials("newsource_git")
+                credentials("adop-jenkins-master")
             }
             branch("*/master")
         }
