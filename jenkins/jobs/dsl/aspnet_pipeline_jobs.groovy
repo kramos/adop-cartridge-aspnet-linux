@@ -1,13 +1,17 @@
+import pluggable.scm.*;
+import adop.cartridge.properties.*;
+
+SCMProvider scmProvider = SCMProviderHandler.getScmProvider("${SCM_PROVIDER_ID}", binding.variables)
+
 // Folders
 def workspaceFolderName = "${WORKSPACE_NAME}"
 def projectFolderName = "${PROJECT_NAME}"
+def projectScmNamespace = "${SCM_NAMESPACE}"
 
 // Variables
 // **The git repo variables will be changed to the users' git repositories manually in the Jenkins jobs**
 def partsUnlimitedAppgitRepo = "PartsUnlimited"
 def performanceTestsgitRepo = "dotnet-performance-tests"
-def partsUnlimitedAppGitUrl = "ssh://jenkins@gerrit:29418/${PROJECT_NAME}/" + partsUnlimitedAppgitRepo
-def gatelingReferenceAppGitUrl = "ssh://jenkins@gerrit:29418/${PROJECT_NAME}/" + performanceTestsgitRepo
 
 // Jobs
 def buildAndUnitTestJob = freeStyleJob(projectFolderName + "/Parts_Unlimited_Build_And_Unit_Tests")
@@ -50,15 +54,7 @@ buildAndUnitTestJob.with{
   }
 
 	description("partsUnlimited application build and unit test job.")
-	scm{
-		git{
-			remote{
-				url(partsUnlimitedAppGitUrl)
-				credentials("adop-jenkins-master")
-			}
-			branch("*/master")
-		}
-	}
+    scm scmProvider.get(projectScmNamespace, partsUnlimitedAppgitRepo, "*/master", "adop-jenkins-master", null)
 	environmentVariables {
       env('WORKSPACE_NAME',workspaceFolderName)
       env('PROJECT_NAME',projectFolderName)
@@ -283,15 +279,7 @@ performanceTestsJob.with {
         groovy("matcher = JENKINS_URL =~ /http:\\/\\/(.*?)\\/jenkins.*/; def map = [STACK_IP: matcher[0][1]]; return map;")
     }
     label("docker")
-    scm {
-        git {
-            remote {
-                url(gatelingReferenceAppGitUrl)
-                credentials("adop-jenkins-master")
-            }
-            branch("*/master")
-        }
-    }
+    scm scmProvider.get(projectScmNamespace, performanceTestsgitRepo, "*/master", "adop-jenkins-master", null)
     steps {
         shell('''
                |set -x
